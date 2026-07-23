@@ -271,7 +271,7 @@ function generateUI(cf, headers, ip, dc, coloCode) {
         </div>
 
         <!-- Footer -->
-        <footer class="pt-7 pb-24 text-center">
+        <footer class="pt-7 pb-20 text-center">
             <div class="mb-8">
                 <div class="text-[26px] font-black tracking-tighter text-blue-500 italic">ELVORA</div>
                 <div class="text-[9px] text-gray-600 uppercase tracking-[0.4em] font-bold">Distributed Gateway</div>
