@@ -1,6 +1,4 @@
-name = "worker"
-type = "webpack"
-account_id = "_your_account_id_"
-workers_dev = true
-zone_id = "_your_zone_id_"
-webpack_config = "webpack.config.js"
+name = "elvora-api"
+main = "index.js"
+compatibility_date = "2026-07-23"
+compatibility_flags = ["nodejs_compat"]
