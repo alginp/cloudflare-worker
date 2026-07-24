@@ -127,10 +127,10 @@ export default {
         });
       }
 
-      if (pathname === 'api/test' || pathname === '/api/test/') {
+      if (pathname === '/test' || pathname === '/test/') {
         return new Response(JSON.stringify({
           status: 'success',
-          message: 'Halo! Ini endpoint /hello dari Elvora API',
+          message: 'Halo! Ini endpoint /test dari Elvora API',
           timestamp: new Date().toISOString(),
           ip: ip,
           colo: cf.colo || 'SIN',
