@@ -172,7 +172,7 @@ export default {
         }
       });
 
-      { catch (err) {
+    } catch (err) {
       return new Response(JSON.stringify({
         code: 500,
         error: "Internal server error",
@@ -190,18 +190,18 @@ export default {
 };     
 
       // Generate HTML UI
-      const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
-      return new Response(uiHtml, {
-        headers: { 
-          'content-type': 'text/html; charset=utf-8',
-          'X-Powered-By': 'Elvora Core Engine'
-        }
-      });
-
-    } catch (err) {
-      return new Response(`[ENGINE ERROR]: ${err.message}`, { status: 500 });
-    }
+const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
+return new Response(uiHtml, {
+  headers: { 
+    'content-type': 'text/html; charset=utf-8',
+    'X-Powered-By': 'Elvora Core Engine'
   }
+});
+
+} catch (err) {
+  return new Response(`[ENGINE ERROR]: ${err.message}`, { status: 500 });
+}
+}
 };
 
 /**
