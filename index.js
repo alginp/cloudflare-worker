@@ -489,7 +489,7 @@ function renderUI(cf, headers, ip, dc, colo) {
                     <!-- PUTIH SOLID TENGAH -->
                     <circle cx="32" cy="24" r="11" fill="#FFFFFF"/>
                     <path fill="#F76D57" d="M32,12c-6.627,0-12,5.373-12,12s5.373,12,12,12s12-5.373,12-12S38.627,12,32,12z M32,34 c-5.522,0-10-4.477-10-10s4.478-10,10-10s10,4.477,10,10S37.522,34,32,34z"/>
-                    <path opacity="0.2" fill="#231F20" d="M32,12c-6.627,0-12,5.373-12,12s5.373,12,12,12s12-5.373,12-12S38.627,12,32,12z"/>
+                    <path opacity="0.2" fill="#FFFFFF" d="M32,12c-6.627,0-12,5.373-12,12s5.373,12,12,12s12-5.373,12-12S38.627,12,32,12z"/>
                 </g>
             </svg>\`,
             className: '', iconSize: [42, 42], iconAnchor: [21, 42], popupAnchor: [0, -38]
@@ -499,12 +499,11 @@ function renderUI(cf, headers, ip, dc, colo) {
         const cfIcon = L.divIcon({
             html: \`<svg width="45" height="45" viewBox="0 0 512 512">
 
-               
+               <path d="M20,100 Q20,40 80,40 T180,60 T240,110 L240,115 L20,115 Z" fill="#FFFFFF"></path>
                 <path fill="#f38020" d="M331 326c11-26-4-38-19-38l-148-2c-4 0-4-6 1-7l150-2c17-1 37-15 43-33 0 0 10-21 9-24a97 97 0 0 0-187-11c-38-25-78 9-69 46-48 3-65 46-60 72 0 1 1 2 3 2h274c1 0 3-1 3-3z"></path>
                 
                 <path fill="#faae40" d="M381 224c-4 0-6-1-7 1l-5 21c-5 16 3 30 20 31l32 2c4 0 4 6-1 7l-33 1c-36 4-46 39-46 39 0 2 0 3 2 3h113l3-2a81 81 0 0 0-78-103"></path>
-                <circle cx="32" cy="24" r="11" fill="#FFFFFF"/>
-                   
+                
             </svg>\`,
             className: '', iconSize: [45, 45], iconAnchor: [22, 22], popupAnchor: [0, -15]
         });
