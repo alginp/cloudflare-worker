@@ -483,7 +483,7 @@ function renderUI(cf, headers, ip, dc, colo) {
 
         // LOGO LOKASI (PUTIH SOLID CENTER)
         const locIcon = L.divIcon({
-            html: \`<svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            html: \`<svg width="36" height="36" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g>
         <!-- Layer 1: Bayangan/Sisi Luar (Putih Abu-abu) -->
         <path fill="#E5E7EB" d="M32,0C18.745,0,8,10.745,8,24c0,5.678,2.502,10.671,5.271,15l17.097,24.156C30.743,63.686,31.352,64,32,64 s1.257-0.314,1.632-0.844L50.729,39C53.375,35.438,56,29.678,56,24C56,10.745,45.255,0,32,0z"/>
