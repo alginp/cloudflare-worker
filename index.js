@@ -185,24 +185,11 @@ export default {
           'Access-Control-Allow-Origin': '*'
         }
       });
-    
+    }
   }   
 };     
 
-      // Generate HTML UI
-const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
-return new Response(uiHtml, {
-  headers: { 
-    'content-type': 'text/html; charset=utf-8',
-    'X-Powered-By': 'Elvora Core Engine'
-  }
-});
-
-} catch (err) {
-  return new Response(`[ENGINE ERROR]: ${err.message}`, { status: 500 });
-}
-}
-};
+      
 
 /**
  * ENGINE PENGHASIL UI
