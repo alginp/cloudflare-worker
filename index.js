@@ -172,7 +172,7 @@ export default {
         }
       });
 
-          } catch (err) {
+      { catch (err) {
       return new Response(JSON.stringify({
         code: 500,
         error: "Internal server error",
