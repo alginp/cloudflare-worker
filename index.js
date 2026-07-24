@@ -127,7 +127,10 @@ export default {
         });
       }
 
-      if (pathname === '/test' || pathname === '/test/') {
+      // ============================================
+      // ROUTE: /test (Endpoint Test)
+      // ============================================
+      if (pathname === '/api/test' || pathname === '/api/test/') {
         return new Response(JSON.stringify({
           status: 'success',
           message: 'Halo! Ini endpoint /test dari Elvora API',
@@ -151,22 +154,38 @@ export default {
           }
         });
       }
-     
-      return new Response(JSON.stringify({
-  code: 404,
-  error: "Route not registered on this server",
-  message: "The path you requested does not exist",
-  status: false
-}, null, 2), {
-  status: 404,
-  headers: {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*',
-    'Cache-Control': 'no-store'
-  }
-});
- 
 
+      // ============================================
+      // ROUTE: 404 - SEMUA PATH LAIN
+      // ============================================
+      return new Response(JSON.stringify({
+        code: 404,
+        error: "Route not registered on this server",
+        message: "The path you requested does not exist",
+        status: false
+      }, null, 2), {
+        status: 404,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Cache-Control': 'no-store'
+        }
+      });
+
+    } catch (err) {
+      return new Response(JSON.stringify({
+        code: 500,
+        error: "Internal server error",
+        message: err.message,
+        status: false
+      }, null, 2), {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
+    }
       // Generate HTML UI
       const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
       return new Response(uiHtml, {
