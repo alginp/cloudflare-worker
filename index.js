@@ -127,6 +127,46 @@ export default {
         });
       }
 
+      if (pathname === '/test' || pathname === '/hello/') {
+        return new Response(JSON.stringify({
+          status: 'success',
+          message: 'Halo! Ini endpoint /hello dari Elvora API',
+          timestamp: new Date().toISOString(),
+          ip: ip,
+          colo: cf.colo || 'SIN',
+          region: cf.region || 'South East Asia',
+          userAgent: headers['user-agent'] || 'Unknown',
+          cf: {
+            colo: cf.colo,
+            city: cf.city,
+            country: cf.country,
+            latitude: cf.latitude,
+            longitude: cf.longitude
+          }
+        }, null, 2), {
+          headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Cache-Control': 'no-store'
+          }
+        });
+      }
+
+      return new Response(JSON.stringify({
+  code: 404,
+  error: "Route not registered on this server",
+  message: "The path you requested does not exist",
+  status: false
+}, null, 2), {
+  status: 404,
+  headers: {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Cache-Control': 'no-store'
+  }
+});
+ }
+
       // Generate HTML UI
       const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
       return new Response(uiHtml, {
