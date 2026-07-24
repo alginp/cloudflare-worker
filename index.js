@@ -151,7 +151,7 @@ export default {
           }
         });
       }
-
+     
       return new Response(JSON.stringify({
   code: 404,
   error: "Route not registered on this server",
@@ -165,7 +165,7 @@ export default {
     'Cache-Control': 'no-store'
   }
 });
- }
+ 
 
       // Generate HTML UI
       const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
