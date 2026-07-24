@@ -127,7 +127,7 @@ export default {
         });
       }
 
-      if (pathname === '/test' || pathname === '/hello/') {
+      if (pathname === 'api/test' || pathname === '/api/test/') {
         return new Response(JSON.stringify({
           status: 'success',
           message: 'Halo! Ini endpoint /hello dari Elvora API',
