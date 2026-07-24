@@ -91,11 +91,11 @@ const CLOUDFLARE_COLO_DATABASE = {
 // ============================================================================
 // CORE ENGINE LOGIC
 // ============================================================================
-
 export default {
   async fetch(request, env, ctx) {
     try {
       const url = new URL(request.url);
+      const pathname = url.pathname;
       const headers = Object.fromEntries(request.headers);
       const cf = request.cf || {};
       const ip = headers['cf-connecting-ip'] || headers['x-real-ip'] || '103.147.246.4';
@@ -127,9 +127,7 @@ export default {
         });
       }
 
-      // ============================================
-      // ROUTE: /test (Endpoint Test)
-      // ============================================
+      // ROUTE: /api/test (Endpoint Test)
       if (pathname === '/api/test' || pathname === '/api/test/') {
         return new Response(JSON.stringify({
           status: 'success',
@@ -155,9 +153,18 @@ export default {
         });
       }
 
-      // ============================================
+      // ROUTE: / - UI/UX Halaman Utama
+      if (pathname === '/' || pathname === '/index.html') {
+        const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
+        return new Response(uiHtml, {
+          headers: { 
+            'content-type': 'text/html; charset=utf-8',
+            'X-Powered-By': 'Elvora Core Engine'
+          }
+        });
+      }
+
       // ROUTE: 404 - SEMUA PATH LAIN
-      // ============================================
       return new Response(JSON.stringify({
         code: 404,
         error: "Route not registered on this server",
@@ -186,11 +193,9 @@ export default {
         }
       });
     }
-  }   
-};     
-
-      
-
+  }
+};
+ 
 /**
  * ENGINE PENGHASIL UI
  * Target: 100% UI Clone & Sesuai Instruksi Boss
