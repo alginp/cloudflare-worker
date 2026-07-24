@@ -483,7 +483,7 @@ function renderUI(cf, headers, ip, dc, colo) {
 
         // LOGO LOKASI (PUTIH SOLID CENTER)
         const locIcon = L.divIcon({
-            html: \`<svg width="32" height="32" viewBox="0 0 64 64" fill="none">
+            html: \`<svg width="42" height="42" viewBox="0 0 64 64" fill="none">
                 <g>
                     <path fill="#F76D57" d="M32,0C18.745,0,8,10.745,8,24c0,5.678,2.502,10.671,5.271,15l17.097,24.156C30.743,63.686,31.352,64,32,64 s1.257-0.314,1.632-0.844L50.729,39C53.375,35.438,56,29.678,56,24C56,10.745,45.255,0,32,0z"/>
                     <!-- PUTIH SOLID TENGAH -->
@@ -501,9 +501,9 @@ function renderUI(cf, headers, ip, dc, colo) {
 
                
                 <path fill="#f38020" d="M331 326c11-26-4-38-19-38l-148-2c-4 0-4-6 1-7l150-2c17-1 37-15 43-33 0 0 10-21 9-24a97 97 0 0 0-187-11c-38-25-78 9-69 46-48 3-65 46-60 72 0 1 1 2 3 2h274c1 0 3-1 3-3z"></path>
-                
-                <path fill="#faae40" d="M381 224c-4 0-6-1-7 1l-5 21c-5 16 3 30 20 31l32 2c4 0 4 6-1 7l-33 1c-36 4-46 39-46 39 0 2 0 3 2 3h113l3-2a81 81 0 0 0-78-103"></path>
                 <path d="M20,100 Q20,40 80,40 T180,60 T240,110 L240,115 L20,115 Z" fill="#FFFFFF"></path>
+                <path fill="#faae40" d="M381 224c-4 0-6-1-7 1l-5 21c-5 16 3 30 20 31l32 2c4 0 4 6-1 7l-33 1c-36 4-46 39-46 39 0 2 0 3 2 3h113l3-2a81 81 0 0 0-78-103"></path>
+                
             </svg>\`,
             className: '', iconSize: [45, 45], iconAnchor: [22, 22], popupAnchor: [0, -15]
         });
