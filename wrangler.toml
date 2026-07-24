@@ -1,4 +1,4 @@
-name = "elvora-api"
+name = "cloudflare-worker"
 main = "index.js"
 compatibility_date = "2026-07-23"
 compatibility_flags = ["nodejs_compat"]
