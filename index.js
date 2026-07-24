@@ -186,6 +186,9 @@ export default {
         }
       });
     }
+    }
+};
+
       // Generate HTML UI
       const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
       return new Response(uiHtml, {
