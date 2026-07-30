@@ -153,7 +153,7 @@ export default {
         });
       }
 
-      // ============================================
+  // ============================================
 // ROUTE: PAYMENT GOPAY - CREATE QRIS (FIX FINAL - NO SIZE LIMIT)
 // ============================================
 if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/payment/gopay-create-qris')) {
@@ -175,6 +175,7 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
   }
 
   try {
+    // GUNAKAN DOMAIN ALWAYSCODEX (BUKAN ELVORA.CC.CD YANG ERROR DNS)
     const targetUrl = `https://api.alwayscodex.my.id/api/payment/gopay-create-qris?amount=${amount}&static_qr=${encodeURIComponent(staticQr)}&token=${encodeURIComponent(token)}`;
 
     const controller = new AbortController();
@@ -215,12 +216,12 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
       // Ambil buffer gambar (TANPA BATASAN UKURAN 10 KB)
       const buffer = await response.arrayBuffer();
       
-      // Validasi Magic Number PNG (89 50 4E 47) - Untuk memastikan ini benar-benar PNG
+      // Validasi Magic Number PNG (89 50 4E 47)
       const view = new Uint8Array(buffer);
       if (buffer.byteLength >= 8 && 
           view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
         
-        // Kembalikan gambar PNG ASLI (berapapun ukurannya)
+        // Kembalikan gambar PNG ASLI
         return new Response(buffer, {
           status: 200,
           headers: {
@@ -229,7 +230,7 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
           }
         });
       } else {
-        // Magic Number gagal, API Codex mungkin mengirim JSON error tapi salah header
+        // Magic Number gagal, kemungkinan JSON error
         const textDecoder = new TextDecoder('utf-8');
         const textBody = textDecoder.decode(buffer);
         try {
