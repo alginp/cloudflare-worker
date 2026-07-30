@@ -153,6 +153,200 @@ export default {
         });
       }
 
+      // ============================================
+// ROUTE: PAYMENT GOPAY - CREATE QRIS
+// ============================================
+if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/payment/gopay-create-qris')) {
+  const amount = url.searchParams.get('amount');
+  const token = url.searchParams.get('token');
+  const staticQr = url.searchParams.get('static_qr') || '';
+  
+  if (!amount || !token) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter amount dan token wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-create-qris?amount=${amount}&static_qr=${staticQr}&token=${token}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+// ============================================
+// ROUTE: PAYMENT GOPAY - HISTORY
+// ============================================
+if (pathname === '/api/payment/gopay-history') {
+  const token = url.searchParams.get('token');
+  
+  if (!token) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter token wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-history?token=${token}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+// ============================================
+// ROUTE: PAYMENT GOPAY - OTP
+// ============================================
+if (pathname === '/api/payment/gopay-otp') {
+  const number = url.searchParams.get('number');
+  
+  if (!number) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter number wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-otp?number=${number}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+// ============================================
+// ROUTE: PAYMENT GOPAY - PAYOUTS
+// ============================================
+if (pathname === '/api/payment/gopay-payouts') {
+  const token = url.searchParams.get('token');
+  
+  if (!token) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter token wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-payouts?token=${token}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+// ============================================
+// ROUTE: PAYMENT GOPAY - QRIS STATUS
+// ============================================
+if (pathname === '/api/payment/gopay-qris-status') {
+  const amount = url.searchParams.get('amount');
+  const createdAt = url.searchParams.get('created_at');
+  const token = url.searchParams.get('token');
+  
+  if (!amount || !createdAt || !token) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter amount, created_at, dan token wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-qris-status?amount=${amount}&created_at=${createdAt}&token=${token}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+// ============================================
+// ROUTE: PAYMENT GOPAY - REFRESH
+// ============================================
+if (pathname === '/api/payment/gopay-refresh') {
+  const refreshToken = url.searchParams.get('refresh_token');
+  
+  if (!refreshToken) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter refresh_token wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-refresh?refresh_token=${refreshToken}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+}
+
+// ============================================
+// ROUTE: PAYMENT GOPAY - VERIFY
+// ============================================
+if (pathname === '/api/payment/gopay-verify') {
+  const otp = url.searchParams.get('otp');
+  const otpToken = url.searchParams.get('otp_token');
+  
+  if (!otp || !otpToken) {
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Parameter otp dan otp_token wajib diisi'
+    }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  
+  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-verify?otp=${otp}&otp_token=${otpToken}`);
+  const data = await response.json();
+  
+  return new Response(JSON.stringify(data, null, 2), {
+    headers: {
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    }
+  });
+      }
+
       // ROUTE: / - UI/UX Halaman Utama
       if (pathname === '/' || pathname === '/index.html') {
         const uiHtml = renderUI(cf, headers, ip, dc, coloCode);
