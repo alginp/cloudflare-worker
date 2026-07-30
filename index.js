@@ -153,9 +153,8 @@ export default {
         });
       }
 
-      
-// ============================================
-// ROUTE: PAYMENT GOPAY - CREATE QRIS (STRICT SIZE LIMIT)
+      // ============================================
+// ROUTE: PAYMENT GOPAY - CREATE QRIS (FIX FINAL - NO SIZE LIMIT)
 // ============================================
 if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/payment/gopay-create-qris')) {
   const amount = url.searchParams.get('amount');
@@ -188,7 +187,7 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
 
     clearTimeout(timeoutId);
 
-    // Cek Status HTTP
+    // Cek Status HTTP (jika error dari API Codex)
     if (!response.ok) {
       try {
         const errorJson = await response.json();
@@ -207,17 +206,30 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
       }
     }
 
-    // Cek Content-Type & Content-Length
+    // Cek Content-Type
     const contentType = response.headers.get('content-type') || '';
-    const contentLength = parseInt(response.headers.get('content-length') || '0');
 
     // Jika response menyatakan gambar
     if (contentType.includes('image/png') || contentType.includes('image/')) {
       
-      // CEK UKURAN: Jika gambar di bawah 10 KB (10000 bytes), sudah pasti error/rusak
-      if (contentLength > 0 && contentLength < 10000) {
-        // Coba parse sebagai JSON error
-        const buffer = await response.arrayBuffer();
+      // Ambil buffer gambar (TANPA BATASAN UKURAN 10 KB)
+      const buffer = await response.arrayBuffer();
+      
+      // Validasi Magic Number PNG (89 50 4E 47) - Untuk memastikan ini benar-benar PNG
+      const view = new Uint8Array(buffer);
+      if (buffer.byteLength >= 8 && 
+          view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
+        
+        // Kembalikan gambar PNG ASLI (berapapun ukurannya)
+        return new Response(buffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'image/png',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      } else {
+        // Magic Number gagal, API Codex mungkin mengirim JSON error tapi salah header
         const textDecoder = new TextDecoder('utf-8');
         const textBody = textDecoder.decode(buffer);
         try {
@@ -229,27 +241,13 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
         } catch {
           return new Response(JSON.stringify({
             status: false,
-            error: 'API Codex mengembalikan gambar rusak (ukuran terlalu kecil)',
+            error: 'Invalid PNG data received from API',
             raw: textBody.substring(0, 200)
           }), {
             status: 502,
             headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
           });
         }
-      }
-
-      // Jika ukuran di atas 10 KB, baru dianggap gambar valid
-      const buffer = await response.arrayBuffer();
-      const view = new Uint8Array(buffer);
-      if (buffer.byteLength >= 8 && 
-          view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
-        return new Response(buffer, {
-          status: 200,
-          headers: {
-            'Content-Type': 'image/png',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
       }
     }
 
@@ -278,8 +276,7 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
     });
   }
 }
-
-
+      
 // ============================================
 // ROUTE: PAYMENT GOPAY - HISTORY
 // ============================================
