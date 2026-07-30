@@ -154,7 +154,7 @@ export default {
       }
 
       // ============================================
-// ROUTE: PAYMENT GOPAY - CREATE QRIS
+// ROUTE: PAYMENT GOPAY - CREATE QRIS (FIX BINARY PNG + TIMEOUT)
 // ============================================
 if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/payment/gopay-create-qris')) {
   const amount = url.searchParams.get('amount');
@@ -167,19 +167,74 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
       error: 'Parameter amount dan token wajib diisi'
     }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
   }
-  
-  const response = await fetch(`https://api.alwayscodex.my.id/api/payment/gopay-create-qris?amount=${amount}&static_qr=${staticQr}&token=${token}`);
-  const data = await response.json();
-  
-  return new Response(JSON.stringify(data, null, 2), {
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
+
+  try {
+    // Bangun URL tujuan
+    const targetUrl = `https://api.alwayscodex.my.id/api/payment/gopay-create-qris?amount=${amount}&static_qr=${encodeURIComponent(staticQr)}&token=${encodeURIComponent(token)}`;
+
+    // Tambahkan AbortController untuk Timeout (25 detik)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 25000);
+
+    const response = await fetch(targetUrl, {
+      headers: {
+        'User-Agent': 'Cloudflare-Worker/1.0'
+      },
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    // Cek Content-Type dari API Codex
+    const contentType = response.headers.get('content-type') || '';
+
+    // JIKA RESPONSE BERUPA GAMBAR (PNG)
+    if (contentType.includes('image/png') || contentType.includes('image/')) {
+      const imageBuffer = await response.arrayBuffer();
+      return new Response(imageBuffer, {
+        status: 200,
+        headers: {
+          'Content-Type': 'image/png',
+          'Content-Length': imageBuffer.byteLength,
+          'Access-Control-Allow-Origin': '*'
+        }
+      });
     }
-  });
+
+    // JIKA RESPONSE JSON (Misal error 500 dari Codex)
+    const data = await response.json();
+    return new Response(JSON.stringify(data, null, 2), {
+      status: response.status,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+
+  } catch (error) {
+    // Handle Timeout / Jaringan Error
+    const errorMessage = error.name === 'AbortError' 
+      ? 'Request ke API Codex timeout (terlalu lama > 25 detik)' 
+      : error.message;
+
+    return new Response(JSON.stringify({
+      status: false,
+      error: 'Gagal menghubungi API Utama',
+      message: errorMessage
+    }), {
+      status: 502,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
+    });
+  }
 }
 
 // ============================================
