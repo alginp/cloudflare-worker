@@ -10,7 +10,7 @@ import {
 } from '../controllers/gopayController.js';
 
 export default function gopayRouter(router) {
-  // Buat QRIS
+  // Buat QRIS (Hasil Binary PNG)
   router.get('/api/payment/gopay-create-qris', createQris);
   
   // Riwayat transaksi
