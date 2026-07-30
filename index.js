@@ -153,8 +153,9 @@ export default {
         });
       }
 
-      // ============================================
-// ROUTE: PAYMENT GOPAY - CREATE QRIS (FIX BINARY PNG + TIMEOUT)
+      
+// ============================================
+// ROUTE: PAYMENT GOPAY - CREATE QRIS (STRICT SIZE LIMIT)
 // ============================================
 if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/payment/gopay-create-qris')) {
   const amount = url.searchParams.get('amount');
@@ -175,52 +176,93 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
   }
 
   try {
-    // Bangun URL tujuan
     const targetUrl = `https://api.alwayscodex.my.id/api/payment/gopay-create-qris?amount=${amount}&static_qr=${encodeURIComponent(staticQr)}&token=${encodeURIComponent(token)}`;
 
-    // Tambahkan AbortController untuk Timeout (25 detik)
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 25000);
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
 
     const response = await fetch(targetUrl, {
-      headers: {
-        'User-Agent': 'Cloudflare-Worker/1.0'
-      },
+      headers: { 'User-Agent': 'Cloudflare-Worker/1.0' },
       signal: controller.signal
     });
 
     clearTimeout(timeoutId);
 
-    // Cek Content-Type dari API Codex
-    const contentType = response.headers.get('content-type') || '';
-
-    // JIKA RESPONSE BERUPA GAMBAR (PNG)
-    if (contentType.includes('image/png') || contentType.includes('image/')) {
-      const imageBuffer = await response.arrayBuffer();
-      return new Response(imageBuffer, {
-        status: 200,
-        headers: {
-          'Content-Type': 'image/png',
-          'Content-Length': imageBuffer.byteLength,
-          'Access-Control-Allow-Origin': '*'
-        }
-      });
+    // Cek Status HTTP
+    if (!response.ok) {
+      try {
+        const errorJson = await response.json();
+        return new Response(JSON.stringify(errorJson, null, 2), {
+          status: response.status,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      } catch {
+        return new Response(JSON.stringify({
+          status: false,
+          error: `HTTP Error ${response.status}: ${response.statusText}`
+        }), {
+          status: response.status,
+          headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+        });
+      }
     }
 
-    // JIKA RESPONSE JSON (Misal error 500 dari Codex)
+    // Cek Content-Type & Content-Length
+    const contentType = response.headers.get('content-type') || '';
+    const contentLength = parseInt(response.headers.get('content-length') || '0');
+
+    // Jika response menyatakan gambar
+    if (contentType.includes('image/png') || contentType.includes('image/')) {
+      
+      // CEK UKURAN: Jika gambar di bawah 10 KB (10000 bytes), sudah pasti error/rusak
+      if (contentLength > 0 && contentLength < 10000) {
+        // Coba parse sebagai JSON error
+        const buffer = await response.arrayBuffer();
+        const textDecoder = new TextDecoder('utf-8');
+        const textBody = textDecoder.decode(buffer);
+        try {
+          const jsonError = JSON.parse(textBody);
+          return new Response(JSON.stringify(jsonError, null, 2), {
+            status: 502,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+          });
+        } catch {
+          return new Response(JSON.stringify({
+            status: false,
+            error: 'API Codex mengembalikan gambar rusak (ukuran terlalu kecil)',
+            raw: textBody.substring(0, 200)
+          }), {
+            status: 502,
+            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
+          });
+        }
+      }
+
+      // Jika ukuran di atas 10 KB, baru dianggap gambar valid
+      const buffer = await response.arrayBuffer();
+      const view = new Uint8Array(buffer);
+      if (buffer.byteLength >= 8 && 
+          view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
+        return new Response(buffer, {
+          status: 200,
+          headers: {
+            'Content-Type': 'image/png',
+            'Access-Control-Allow-Origin': '*'
+          }
+        });
+      }
+    }
+
+    // Jika bukan gambar, parse JSON
     const data = await response.json();
     return new Response(JSON.stringify(data, null, 2), {
       status: response.status,
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
-      }
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' }
     });
 
   } catch (error) {
-    // Handle Timeout / Jaringan Error
     const errorMessage = error.name === 'AbortError' 
-      ? 'Request ke API Codex timeout (terlalu lama > 25 detik)' 
+      ? 'Request ke API Codex timeout (terlalu lama > 30 detik)' 
       : error.message;
 
     return new Response(JSON.stringify({
@@ -236,6 +278,7 @@ if (pathname === '/api/payment/gopay-create-qris' || pathname.startsWith('/api/p
     });
   }
 }
+
 
 // ============================================
 // ROUTE: PAYMENT GOPAY - HISTORY
