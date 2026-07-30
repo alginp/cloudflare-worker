@@ -26,39 +26,21 @@ async function fetchCodex(endpoint, params = {}, returnImage = false) {
     // Jika request meminta gambar (Create QRIS)
     if (returnImage) {
       const contentType = response.headers.get('content-type') || '';
-      const contentLength = parseInt(response.headers.get('content-length') || '0');
 
       // JIKA HEADER MENGATAKAN GAMBAR
       if (contentType.includes('image/png') || contentType.includes('image/')) {
         
-        // 1. Filter Ukuran: Jika di bawah 10 KB (10000 bytes), sudah pasti error/rusak
-        if (contentLength > 0 && contentLength < 10000) {
-          const buffer = await response.arrayBuffer();
-          const textDecoder = new TextDecoder('utf-8');
-          const textBody = textDecoder.decode(buffer);
-          // Coba parse sebagai JSON (karena seringkali error 500 dibungkus gambar)
-          try {
-            const jsonError = JSON.parse(textBody);
-            return { type: 'json', data: jsonError, status: 502 };
-          } catch {
-            return { type: 'json', data: { 
-              status: false, 
-              error: 'API Codex mengembalikan gambar rusak (ukuran terlalu kecil)',
-              raw_preview: textBody.substring(0, 100)
-            }, status: 502 };
-          }
-        }
-
-        // 2. Ambil buffer gambar
+        // Ambil buffer gambar
         const buffer = await response.arrayBuffer();
         
-        // 3. Validasi Magic Number PNG (89 50 4E 47)
+        // Validasi Magic Number PNG (89 50 4E 47) - HARUS ADA
         const view = new Uint8Array(buffer);
         if (buffer.byteLength >= 8 && 
             view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
+          // INI PNG VALID, LEWATKAN APAPUN UKURANNYA
           return { type: 'image', data: buffer, status: response.status };
         } else {
-          // Magic number gagal, coba parse sebagai JSON
+          // Magic number gagal, coba parse sebagai JSON (kemungkinan error dari Codex)
           const textDecoder = new TextDecoder('utf-8');
           const textBody = textDecoder.decode(buffer);
           try {
@@ -271,4 +253,4 @@ export async function verifyOtp(request) {
       status: 502, headers: { 'Content-Type': 'application/json' }
     });
   }
-        }
+      }
