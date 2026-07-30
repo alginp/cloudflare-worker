@@ -8,9 +8,9 @@ async function fetchCodex(endpoint, params = {}, returnImage = false) {
     if (params[key]) url.searchParams.append(key, params[key]);
   });
   
-  // Gunakan AbortController untuk timeout (25 detik)
+  // Gunakan AbortController untuk timeout (30 detik)
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 25000);
+  const timeoutId = setTimeout(() => controller.abort(), 30000);
 
   try {
     const response = await fetch(url.toString(), {
@@ -26,26 +26,68 @@ async function fetchCodex(endpoint, params = {}, returnImage = false) {
     // Jika request meminta gambar (Create QRIS)
     if (returnImage) {
       const contentType = response.headers.get('content-type') || '';
+      const contentLength = parseInt(response.headers.get('content-length') || '0');
+
+      // JIKA HEADER MENGATAKAN GAMBAR
       if (contentType.includes('image/png') || contentType.includes('image/')) {
+        
+        // 1. Filter Ukuran: Jika di bawah 10 KB (10000 bytes), sudah pasti error/rusak
+        if (contentLength > 0 && contentLength < 10000) {
+          const buffer = await response.arrayBuffer();
+          const textDecoder = new TextDecoder('utf-8');
+          const textBody = textDecoder.decode(buffer);
+          // Coba parse sebagai JSON (karena seringkali error 500 dibungkus gambar)
+          try {
+            const jsonError = JSON.parse(textBody);
+            return { type: 'json', data: jsonError, status: 502 };
+          } catch {
+            return { type: 'json', data: { 
+              status: false, 
+              error: 'API Codex mengembalikan gambar rusak (ukuran terlalu kecil)',
+              raw_preview: textBody.substring(0, 100)
+            }, status: 502 };
+          }
+        }
+
+        // 2. Ambil buffer gambar
         const buffer = await response.arrayBuffer();
-        return { type: 'image', data: buffer, status: response.status };
+        
+        // 3. Validasi Magic Number PNG (89 50 4E 47)
+        const view = new Uint8Array(buffer);
+        if (buffer.byteLength >= 8 && 
+            view[0] === 0x89 && view[1] === 0x50 && view[2] === 0x4E && view[3] === 0x47) {
+          return { type: 'image', data: buffer, status: response.status };
+        } else {
+          // Magic number gagal, coba parse sebagai JSON
+          const textDecoder = new TextDecoder('utf-8');
+          const textBody = textDecoder.decode(buffer);
+          try {
+            const jsonError = JSON.parse(textBody);
+            return { type: 'json', data: jsonError, status: 502 };
+          } catch {
+            return { type: 'json', data: { 
+              status: false, 
+              error: 'Invalid PNG data received from Codex' 
+            }, status: 502 };
+          }
+        }
       }
     }
 
-    // Default JSON response
+    // Default JSON response (untuk endpoint lain)
     const json = await response.json();
     return { type: 'json', data: json, status: response.status };
 
   } catch (error) {
     clearTimeout(timeoutId);
     if (error.name === 'AbortError') {
-      throw new Error('Request ke API Codex timeout (terlalu lama > 25 detik)');
+      throw new Error('Request ke API Codex timeout (terlalu lama > 30 detik)');
     }
     throw error;
   }
 }
 
-// 1. Buat QRIS GoPay (MENGHASILKAN GAMBAR BINARY)
+// 1. Buat QRIS GoPay
 export async function createQris(request) {
   try {
     const url = new URL(request.url);
@@ -81,8 +123,11 @@ export async function createQris(request) {
 
     // Jika Codex mengembalikan JSON error
     return new Response(JSON.stringify(result.data, null, 2), {
-      status: result.status,
-      headers: { 'Content-Type': 'application/json' }
+      status: result.status || 502,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
 
   } catch (error) {
@@ -91,7 +136,10 @@ export async function createQris(request) {
       error: error.message
     }), {
       status: 502,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
   }
 }
